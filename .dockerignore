@@ -1,0 +1,13 @@
+# Exclude virtual environments and node modules
+venv/
+**/node_modules/
+**/.next/
+drivers/
+output/
+data/
+.git/
+.gitignore
+*.log
+*.zip
+*.tar.gz
+*.exe

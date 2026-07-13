@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: gms-backend
+    ports:
+      - "5001:5001"
+    environment:
+      - IS_DOCKER=true
+      - PYTHONUNBUFFERED=1
+      - CHROME_MAX_CONCURRENT=3
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+    shm_size: '2gb'
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+    container_name: gms-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - FLASK_API_URL=http://backend:5001
+      - PORT=3000
+    volumes:
+      - ./data:/data
+    depends_on:
+      - backend
+    restart: unless-stopped

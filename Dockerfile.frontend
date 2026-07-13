@@ -1,0 +1,39 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+# Install compilation tools for native addons
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dependencies first (relative to build context root)
+COPY package.json package-lock.json ./
+# Configure npm for network resilience
+RUN npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000
+
+RUN npm install
+
+# Copy frontend source code
+COPY . .
+
+# Ensure data directory exists
+RUN mkdir -p /data
+
+# Next.js Telemetry disabled during build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+ARG FLASK_API_URL=http://backend:5001
+ENV FLASK_API_URL=${FLASK_API_URL}
+
+# Build Next.js app
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]

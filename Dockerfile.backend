@@ -1,0 +1,31 @@
+FROM --platform=linux/amd64 python:3.9-slim
+
+# Install system dependencies & Chrome (modern non-deprecated way)
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    gnupg \
+    unzip \
+    && curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y chromium chromium-driver dbus \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy dependencies first for caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir --default-timeout=100 -r requirements.txt
+
+# Copy backend source
+COPY app/ app/
+
+# Set env variables
+ENV IS_DOCKER=true
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 5001
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5001"]

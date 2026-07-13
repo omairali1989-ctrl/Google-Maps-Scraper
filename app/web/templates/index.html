@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractrx - Google Maps Scraper Web Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar/Header Panel -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i data-lucide="map-pin"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Extractrx</h1>
+                    <span class="sub-title">Google Maps Scraper v3.2.0</span>
+                </div>
+            </div>
+            
+            <div class="status-panel">
+                <button id="theme-toggle" class="btn-theme-toggle" aria-label="Toggle color theme" title="Toggle theme">
+                    <i data-lucide="sun" class="sun-icon"></i>
+                    <i data-lucide="moon" class="moon-icon"></i>
+                </button>
+                <div id="status-badge" class="badge idle">
+                    <span class="pulse-dot"></span>
+                    <span class="status-label">Idle</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Layout -->
+        <main class="dashboard-grid">
+            <!-- Left Controls Column -->
+            <div class="controls-column">
+                <!-- Config Card -->
+                <section class="card glass">
+                    <div class="card-header">
+                        <i data-lucide="sliders"></i>
+                        <h2>Configuration</h2>
+                    </div>
+                    
+                    <form id="scrape-form" class="config-form">
+                        <div class="form-group">
+                            <label for="search-query">Search Query</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="search" class="input-icon"></i>
+                                <input type="text" id="search-query" placeholder="e.g., Coffee Shops in New York" required autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label for="output-format">Output Format</label>
+                                <select id="output-format">
+                                    <option value="excel">Excel (.xlsx)</option>
+                                    <option value="csv">CSV (.csv)</option>
+                                    <option value="json">JSON (.json)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group half">
+                                <label>Browser Options</label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="headless-mode" checked>
+                                    <span class="checkbox-checkmark"></span>
+                                    <span class="checkbox-text">Headless Mode</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="submit" id="start-btn" class="btn btn-primary">
+                                <i data-lucide="play"></i>
+                                <span>Start Scraper</span>
+                            </button>
+                            <button type="button" id="stop-btn" class="btn btn-danger" disabled>
+                                <i data-lucide="square"></i>
+                                <span>Stop Scraper</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Stats Card -->
+                <section class="card glass">
+                    <div class="card-header">
+                        <i data-lucide="bar-chart-2"></i>
+                        <h2>Scraper Metrics</h2>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <span class="metric-label">Locations Scrolled</span>
+                            <span id="metric-count" class="metric-value">0</span>
+                        </div>
+                        <div class="metric-box">
+                            <span class="metric-label">Active Query</span>
+                            <span id="metric-query" class="metric-value text-truncate">-</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Console & Downloads Column -->
+            <div class="output-column">
+                <!-- Terminal Card -->
+                <section class="card glass console-card">
+                    <div class="card-header console-header">
+                        <div class="header-left">
+                            <i data-lucide="terminal"></i>
+                            <h2>Live Scraper Logs</h2>
+                        </div>
+                        <div class="header-actions">
+                            <button id="clear-console-btn" class="btn-icon" title="Clear console">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoscroll-toggle" checked>
+                                <span class="slider"></span>
+                                <span class="toggle-label">Auto-scroll</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="console-output" class="console-body">
+                        <div class="console-line system">Ready to scrape. Enter query and press Start.</div>
+                    </div>
+                </section>
+
+                <!-- Downloads Card -->
+                <section class="card glass">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <i data-lucide="download-cloud"></i>
+                            <h2>Recent Data Downloads</h2>
+                        </div>
+                        <button id="refresh-files-btn" class="btn-icon" title="Refresh files list">
+                            <i data-lucide="rotate-cw"></i>
+                        </button>
+                    </div>
+                    <div class="downloads-body">
+                        <div id="no-files-message" class="empty-state">
+                            <i data-lucide="folder-open"></i>
+                            <p>No scraped files found yet.</p>
+                        </div>
+                        <div id="files-list" class="files-list" style="display: none;">
+                            <!-- Dynamic file items will be inserted here -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- App Logic -->
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Initialize Lucide Icons after the page elements are generated
+        lucide.createIcons();
+    </script>
+</body>
+</html>
